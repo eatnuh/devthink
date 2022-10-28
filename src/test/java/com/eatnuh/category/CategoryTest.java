@@ -37,7 +37,7 @@ class CategoryTest {
     @Test
     @DisplayName("카테고리 도메인 테스트 - WALLET_BELT의 하위카테고리에 WALLET, BELT가 있다.")
     void walletBeltGetSubCategoriesContainsWalletAndBeltTest() {
-        List<Category> walletBeltSubCategories = Category.WALLET_BELT.getSubCategories();
+        List<Category> walletBeltSubCategories = Category.WALLET_BELT.getChildCategories();
 
         assertTrue(walletBeltSubCategories.contains(Category.WALLET));
         assertTrue(walletBeltSubCategories.contains(Category.BELT));
@@ -46,7 +46,7 @@ class CategoryTest {
     @Test
     @DisplayName("키테고리 도메인 테스트 - FASHION_CHILDREN의 하위카테고리에 TV가 없다.")
     void fashionChildrenGetSubCategoriesNotContainsTVTest() {
-        List<Category> fashionChildrenSubCategories = Category.FASHION_CHILDREN.getSubCategories();
+        List<Category> fashionChildrenSubCategories = Category.FASHION_CHILDREN.getChildCategories();
 
         assertFalse(fashionChildrenSubCategories.contains(Category.TV));
     }
@@ -67,7 +67,7 @@ class CategoryTest {
     @DisplayName("카테고리 도메인 테스트 - 하위카테고리 변경 금지 테스트")
     void subCategoriesLisIsUnmodifiableTest() {
         assertThrows(UnsupportedOperationException.class,
-                () -> Category.MEAT_EGG.getSubCategories().add(Category.BEVERAGE)
+                () -> Category.MEAT_EGG.getChildCategories().add(Category.BEVERAGE)
         );
     }
 

@@ -67,22 +67,22 @@ import lombok.Getter;
 @Getter
 public enum Category {
 
-    //... CATEGORY INSTANCE
+ //... CATEGORY INSTANCE
 
-    private final String title;
-    private final Category parentCategory;
-    private final List<Category> subCategories;
+ private final String title;
+ private final Category parentCategory;
+ private final List<Category> childCategories;
 
-    Category(String title, Category parentCategory, List<Category> subCategories) {
-        this.title = title;
-        this.parentCategory = parentCategory;
-        this.subCategories = subCategories;
-    }
+ Category(String title, Category parentCategory, List<Category> childCategories) {
+  this.title = title;
+  this.parentCategory = parentCategory;
+  this.childCategories = subCategories;
+ }
 }
 ```
 * title : 카테고리 이름
-* parentCategory : 상위 카테고리
-* subCategories : 하위 카테고리
+* parentCategory : 부모 카테고리
+* childCategories : 자식 카테고리
 
 ## 3. 구현
 
@@ -94,18 +94,18 @@ public enum Category {
 
     ROOT(    "카테고리", null, List.of( FASHION, FOOD, DIGITAL, ...) ),
     FASHION( "패션",    ROOT, List.of( MEN_FASHION, WOMEN_FASHION, BAG_ACC, ... ) ),
-    FOOD(    "음식",    ROOT, List.of( INSTANT, BEVERAGE, MEAT_EGG, ... ) )
+    FOOD(    "음식",    ROOT, List.of( INSTANT, BEVERAGE, MEAT_EGG, ... ) ),
     
-    ...;
+    // ...;
 
     private final String title;
     private final Category parentCategory;
-    private final List<Category> subCategories;
+    private final List<Category> childCategories;
 
-    Category(String title, Category parentCategory, List<Category> subCategories) {
+    Category(String title, Category parentCategory, List<Category> childCategories) {
         this.title = title;
         this.parentCategory = parentCategory;
-        this.subCategories = subCategories;
+        this.childCategories = childCategories;
     }
 }
 ```
@@ -113,66 +113,65 @@ public enum Category {
 ### 3.1 코드 문제점 및 해결
 
 
->> #### 문제점 1 : parentCategory에 null이 들어올 수 있다.
->> ROOT의 상위 카테고리는 없습니다. ROOT의 부모카테고리 호출 시 NullPointerException 위험이 있다.
+> > #### 문제점 1 : parentCategory에 null이 들어올 수 있다.
+>> ROOT의 부모 카테고리는 없습니다. ROOT의 부모카테고리 호출 시 NullPointerException 위험이 있다.
 >
 >> #### 해결 : Optional로 parentCategory를 감싸서 null값이 들어올 수 있다는 것을 명시한다.
 > 
 > ```java
 > import lombok.Getter;
->> import java.util.Optional;
+> import java.util.Optional;
 > 
 > @Getter
 > public enum Category {
 > 
 >     ROOT(    "카테고리", null, List.of( FASHION, FOOD, DIGITAL, ...) ),
 >     FASHION( "패션",    ROOT, List.of( MEN_FASHION, WOMEN_FASHION, BAG_ACC, ... ) ),
->     FOOD(    "음식",    ROOT, List.of( INSTANT, BEVERAGE, MEAT_EGG, ... ) )
->   
->     ...;
+>     FOOD(    "음식",    ROOT, List.of( INSTANT, BEVERAGE, MEAT_EGG, ... ) ), 
+>     // ...
 >
 >     private final String title;
 >     private final Optional<Category> parentCategory;
->     private final List<Category> subCategories;
+>     private final List<Category> childCategories;
 >
->     Category(String title, Category parentCategory, List<Category> subCategories) {
+>     Category(String title, Category parentCategory, List<Category> childCategories) {
 >         this.title = title;
 >         this.parentCategory = Optional.ofNullable(parentCategory);
->         this.subCategories = subCategories;
+>         this.childCategories = childCategories;
 >     }
 > }
 > ```
 
 > > #### 문제점 2 : 상위 카테고리 인스턴스 생성 시점에 하위 카테고리 인스턴스는 존재하지 않는다.
 >> JVM에서 Enum타입 인스턴스 생성은 처음 선언한 것 부터 마지막 까지 순차적으로 생성한다.
->> ROOT 인스턴스를 생성하려는 시점에는 하위 카테고리는 존재하지 않습니다. 존재하지 않는 인스턴스를 
+>> ROOT 인스턴스를 생성하려는 시점에는 자식 카테고리는 존재하지 않습니다. 존재하지 않는 인스턴스를 
 >> 생성자로 초기화하려고 하니 컴파일 에러가 발생했습니다.
 >
 >> #### 해결 : 인스턴스 생성 시점에 동적으로 상위 카테고리의 리스트에 추가한다.
 > ```java
 > import lombok.Getter;
->> import java.util.ArrayList; 
->> import java.util.Optional;
+> import java.util.ArrayList; 
+> import java.util.Optional;
 > 
 > @Getter
 > public enum Category {
 > 
 >     ROOT(    "카테고리", null),
 >     FASHION( "패션",    ROOT),
->     FOOD(    "음식",    ROOT)
+>     FOOD(    "음식",    ROOT),
 >   
->     ...;
+>     // ...
 >
 >     private final String title;
 >     private final Optional<Category> parentCategory;
->     private final List<Category> subCategories;
+>     private final List<Category> childCategories;
 >
 >     Category(String title, Category parentCategory) {
->         this.subCategories = new ArrayList<>();
+>         this.childCategories = new ArrayList<>();
 >         this.title = title;
 >         this.parentCategory = Optional.ofNullable(parentCategory);
 >         this.parentCategory.ifPresent(
->             parent -> parent.subCategories.add(this)
+>             parent -> parent.childCategories.add(this)
 >         );       
 >     }
 > }
@@ -180,9 +179,9 @@ public enum Category {
 
 > > #### 문제점 3 : 문제점 2의 변경으로 인해 카테고리 인스턴스의 불변성이 꺠진다.
 >> 카테고리 데이터는 불변객체 입니다. 그러므로 외부에서 Getter 메서드로 접근할 수 있는 
- > > subCategories 리스트도 불변객체여야 합니다.
- > > 문제점 2 변경 전에는 subCategories를 불변 리스트인 List.of()로 초기화 해서
- > > 불변성을 유지하려 했지만 변경 후 생성자로 동적으로 상위 카테고리의 리스트에 추가해야 되기 떄문에
+ > > childCategories 리스트도 불변객체여야 합니다.
+ > > 문제점 2 변경 전에는 childCategories를 불변 리스트인 List.of()로 초기화 해서
+ > > 불변성을 유지하려 했지만 변경 후 생성자로 동적으로 부모 카테고리의 리스트에 추가해야 되기 떄문에
  > > 가변리스트인 ArrayList를 사용해야 했습니다.
 >
 >> #### 해결 : getter로 subCategories를 반환할 떄 unmodifiableList로 감싸서 리턴한다.
@@ -195,20 +194,19 @@ public enum Category {
 > 
 >     ROOT(    "카테고리", null),
 >     FASHION( "패션",    ROOT),
->     FOOD(    "음식",    ROOT)
->   
->     ...;
+>     FOOD(    "음식",    ROOT), 
+>     // ...
 >
 >     private final String title;
 >     private final Optional<Category> parentCategory;
->     private final List<Category> subCategories;
+>     private final List<Category> childCategories;
 >
 >     Category(String title, Category parentCategory) {
->         this.subCategories = new ArrayList<>();
+>         this.childCategories = new ArrayList<>();
 >         this.title = title;
 >         this.parentCategory = Optional.ofNullable(parentCategory);
 >         this.parentCategory.ifPresent(
->             parent -> parent.subCategories.add(this)
+>             parent -> parent.childCategories.add(this)
 >         );       
 >     }
 > 
@@ -216,7 +214,7 @@ public enum Category {
 > 
 >     public Optional<Category> getParentCategory() { return parentCategory; }
 > 
->     public List<Category> getSubCategories() { return Collections.unmodifiableList(subCategories); }
+>     public List<Category> getChildCategories() { return Collections.unmodifiableList(childCategories); }
 > }
 > ```
 
@@ -228,16 +226,17 @@ public enum Category {
 > ```java
 > public enum Category {
 > 
->     ...
+>     // ...
 > 
->     public boolean isLeafCategory() { return subCategory.isEmpty(); }  
+>     public boolean isLeafCategory() { return childCategories.isEmpty(); }  
 >
 > }
 > ```
 > 활용 예시
 > ```java
 > public class registerProductService {
->     ...
+>     
+>     // ...
 >
 >     public ResponseDto registerProduct(RequestDto request) {
 >         Category category = request.getCategory();
@@ -259,7 +258,7 @@ public enum Category {
 > ```java
 > public enum Category {
 >    
->    ...
+>    // ...
 > 
 >    public List<Category> getLeafCategories() {
 >        return Arrays.stream(Category.values())
@@ -284,7 +283,8 @@ public enum Category {
 > 활용 예시
 > ```java
 > public class searchProductService {
->     ...
+>     
+>     // ...
 >
 >     public List<ResponseDto> searchProduct(RequestDto request) {
 >         Category category = request.getCategory();
@@ -355,14 +355,14 @@ public enum Category {
 
     private final String title;
     private final Optional<Category> parentCategory;
-    private final List<Category> subCategories;
+    private final List<Category> childCategories;
 
     Category(String title, Category parentCategory) {
-        this.subCategories = new ArrayList<>();
+        this.childCategories = new ArrayList<>();
         this.title = title;
         this.parentCategory = Optional.ofNullable(parentCategory);
         this.parentCategory.ifPresent(
-                parent -> parent.subCategories.add(this)
+                parent -> parent.childCategories.add(this)
         );
     }
 
@@ -374,12 +374,12 @@ public enum Category {
         return parentCategory;
     }
 
-    public List<Category> getSubCategories() {
-        return Collections.unmodifiableList(subCategories);
+    public List<Category> getChildCategories() {
+        return Collections.unmodifiableList(ChildCategories);
     }
 
     public boolean isLeafCategory() {
-        return subCategories.isEmpty();
+        return childCategories.isEmpty();
     }
 
     public List<Category> getLeafCategories() {

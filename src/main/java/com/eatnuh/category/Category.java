@@ -57,14 +57,14 @@ public enum Category {
 
     private final String title;
     private final Optional<Category> parentCategory;
-    private final List<Category> subCategories;
+    private final List<Category> childCategories;
 
     Category(String title, Category parentCategory) {
-        this.subCategories = new ArrayList<>();
+        this.childCategories = new ArrayList<>();
         this.title = title;
         this.parentCategory = Optional.ofNullable(parentCategory);
         this.parentCategory.ifPresent(
-                parent -> parent.subCategories.add(this)
+                parent -> parent.childCategories.add(this)
         );
     }
 
@@ -76,12 +76,12 @@ public enum Category {
         return parentCategory;
     }
 
-    public List<Category> getSubCategories() {
-        return Collections.unmodifiableList(subCategories);
+    public List<Category> getChildCategories() {
+        return Collections.unmodifiableList(childCategories);
     }
 
     public boolean isLeafCategory() {
-        return subCategories.isEmpty();
+        return childCategories.isEmpty();
     }
 
     public List<Category> getLeafCategories() {
