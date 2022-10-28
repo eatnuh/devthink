@@ -70,4 +70,22 @@ class CategoryTest {
                 () -> Category.MEAT_EGG.getSubCategories().add(Category.BEVERAGE)
         );
     }
+
+    @Test
+    @DisplayName("카테고리 도메인 테스트 - [TV, PROJECTOR, COMPUTER]는 DIGITAL의 리프카테고리다.")
+    void TVAndProjectorAndComputerAreLeafCategoryOfDigitalTest() {
+        List<Category> leafCategories = Category.DIGITAL.getLeafCategories();
+
+        assertTrue(leafCategories.contains(Category.TV));
+        assertTrue(leafCategories.contains(Category.PROJECTOR));
+        assertTrue(leafCategories.contains(Category.COMPUTER));
+    }
+
+    @Test
+    @DisplayName("카테고리 도메인 테스트 - INSTANT는 FASHION_WOMEN의 리프카테고리가 아니다.")
+    void InstantIsNotLeafCategoryOfFashionWomenTest() {
+        List<Category> leafCategories = Category.FASHION_WOMEN.getLeafCategories();
+
+        assertFalse(leafCategories.contains(Category.INSTANT));
+    }
 }

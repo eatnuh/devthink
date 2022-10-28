@@ -1,9 +1,7 @@
 package com.eatnuh.category;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public enum Category {
 
@@ -59,13 +57,14 @@ public enum Category {
 
     private final String title;
     private final Optional<Category> parentCategory;
-    private final List<Category> subCategories = new ArrayList<>();
+    private final List<Category> subCategories;
 
     Category(String title, Category parentCategory) {
+        this.subCategories = new ArrayList<>();
         this.title = title;
         this.parentCategory = Optional.ofNullable(parentCategory);
         this.parentCategory.ifPresent(
-                category -> category.subCategories.add(this)
+                parent -> parent.subCategories.add(this)
         );
     }
 
@@ -81,8 +80,27 @@ public enum Category {
         return Collections.unmodifiableList(subCategories);
     }
 
-    public Boolean isLeafCategory() {
+    public boolean isLeafCategory() {
         return subCategories.isEmpty();
+    }
+
+    public List<Category> getLeafCategories() {
+        return Arrays.stream(Category.values())
+                .filter(category -> category.isLeafCategoryOf(this))
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    private boolean isLeafCategoryOf(Category category) {
+        return (this.isLeafCategory() && category.contains(this))? true : false;
+    }
+
+    private boolean contains(Category category) {
+        if(this.equals(category)) return true;
+        if(category == ROOT) return false;
+
+        Category parent = category.parentCategory.get();
+
+        return this.contains(parent);
     }
 
 }
