@@ -1,8 +1,8 @@
-# 비즈니스 상황에서 일어날 수 있는 다양한 문제들에 대한 구현과 개인적인 생각
+# 개발을 하면서 문제해결 및 개인적인 생각 정리
 
---------
+> 지극히 주관적인 문제해결과 생각을 정리한 레포지토리입니다. 
+> 잘못된 정보나 널리 알려진 Best Practice와 맞지 않을 수 있습니다. 
 
 
-
-1. [Enum으로 계층형 카테고리 구현](https://github.com/eatnuh/situation/tree/main/src/main/resources/category)
+### 1. [Enum으로 계층형 카테고리 구현 (2022.10.28)](https://github.com/eatnuh/devthink/tree/main/src/main/resources/category)
 
