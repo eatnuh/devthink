@@ -56,16 +56,14 @@ public enum Category {
             COMPUTER("컴퓨터/게임/SW", DIGITAL);
 
     private final String title;
-    private final Optional<Category> parentCategory;
+    private final Category parentCategory;
     private final List<Category> childCategories;
 
     Category(String title, Category parentCategory) {
         this.childCategories = new ArrayList<>();
         this.title = title;
-        this.parentCategory = Optional.ofNullable(parentCategory);
-        this.parentCategory.ifPresent(
-                parent -> parent.childCategories.add(this)
-        );
+        this.parentCategory = parentCategory;
+        if(Objects.nonNull(parentCategory)) this.parentCategory.childCategories.add(this);
     }
 
     public String getTitle() {
@@ -73,7 +71,7 @@ public enum Category {
     }
 
     public Optional<Category> getParentCategory() {
-        return parentCategory;
+        return Optional.ofNullable(parentCategory);
     }
 
     public List<Category> getChildCategories() {
@@ -87,20 +85,18 @@ public enum Category {
     public List<Category> getLeafCategories() {
         return Arrays.stream(Category.values())
                 .filter(category -> category.isLeafCategoryOf(this))
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toList());
     }
 
     private boolean isLeafCategoryOf(Category category) {
-        return (this.isLeafCategory() && category.contains(this))? true : false;
+        return this.isLeafCategory() && category.contains(this);
     }
 
     private boolean contains(Category category) {
         if(this.equals(category)) return true;
-        if(category == ROOT) return false;
 
-        Category parent = category.parentCategory.get();
+        return Objects.nonNull(category.parentCategory) && this.contains(category.parentCategory);
 
-        return this.contains(parent);
     }
 
 }

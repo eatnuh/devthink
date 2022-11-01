@@ -116,13 +116,12 @@ public enum Category {
 > > #### 문제점 1 : parentCategory에 null이 들어올 수 있다.
 >> ROOT의 부모 카테고리는 없습니다. ROOT의 부모카테고리 호출 시 NullPointerException 위험이 있다.
 >
->> #### 해결 : Optional로 parentCategory를 감싸서 null값이 들어올 수 있다는 것을 명시한다.
+>> #### 해결 : getter에서 Optional로 parentCategory를 감싸서 null값이 들어올 수 있다는 것을 명시한다.
 > 
 > ```java
-> import lombok.Getter;
 > import java.util.Optional;
 > 
-> @Getter
+> 
 > public enum Category {
 > 
 >     ROOT(    "카테고리", null, List.of( FASHION, FOOD, DIGITAL, ...) ),
@@ -131,13 +130,17 @@ public enum Category {
 >     // ...
 >
 >     private final String title;
->     private final Optional<Category> parentCategory;
+>     private final Category parentCategory;
 >     private final List<Category> childCategories;
 >
 >     Category(String title, Category parentCategory, List<Category> childCategories) {
 >         this.title = title;
->         this.parentCategory = Optional.ofNullable(parentCategory);
+>         this.parentCategory = parentCategory;
 >         this.childCategories = childCategories;
+>     }
+> 
+>     public Optional<Category> getParentCategory() {
+>         return Optional.ofNullable(parentCategory);  
 >     }
 > }
 > ```
@@ -153,7 +156,6 @@ public enum Category {
 > import java.util.ArrayList; 
 > import java.util.Optional;
 > 
-> @Getter
 > public enum Category {
 > 
 >     ROOT(    "카테고리", null),
@@ -163,16 +165,14 @@ public enum Category {
 >     // ...
 >
 >     private final String title;
->     private final Optional<Category> parentCategory;
+>     private final Category parentCategory;
 >     private final List<Category> childCategories;
 >
 >     Category(String title, Category parentCategory) {
 >         this.childCategories = new ArrayList<>();
 >         this.title = title;
 >         this.parentCategory = Optional.ofNullable(parentCategory);
->         this.parentCategory.ifPresent(
->             parent -> parent.childCategories.add(this)
->         );       
+>         if(Objects.nonNull(this.parentCategory)) this.parentCategory.childCategories.add(this); 
 >     }
 > }
 > ```
@@ -188,6 +188,7 @@ public enum Category {
 > ```java
 > import java.util.ArrayList; 
 > import java.util.Collections; 
+> import java.util.Objects; 
 > import java.util.Optional;
 > 
 > public enum Category {
@@ -198,21 +199,19 @@ public enum Category {
 >     // ...
 >
 >     private final String title;
->     private final Optional<Category> parentCategory;
+>     private final Category parentCategory;
 >     private final List<Category> childCategories;
 >
 >     Category(String title, Category parentCategory) {
 >         this.childCategories = new ArrayList<>();
 >         this.title = title;
->         this.parentCategory = Optional.ofNullable(parentCategory);
->         this.parentCategory.ifPresent(
->             parent -> parent.childCategories.add(this)
->         );       
+>         this.parentCategory = parentCategory;
+>         if(Objects.nonNull(this.parentCategory)) this.parentCategory.childCategories.add(this);
 >     }
 > 
 >     public String getTitle() { return title; }
 > 
->     public Optional<Category> getParentCategory() { return parentCategory; }
+>     public Optional<Category> getParentCategory() { return Optional.ofNullable(parentCategory); }
 > 
 >     public List<Category> getChildCategories() { return Collections.unmodifiableList(childCategories); }
 > }
@@ -252,10 +251,12 @@ public enum Category {
 > } 
 > ```
 
->> 요구사항 2 : 카테고리 조회 시 조회 결과는 하위 카테고리 조회결과를 포함한다.
+> > 요구사항 2 : 카테고리 조회 시 조회 결과는 하위 카테고리 조회결과를 포함한다.
 > 
 > > 카테고리가 포함하는 마지막 카테고리(리프 카테고리) 컬렉션을 리턴하는 메서드를 제공한다.
 > ```java
+> import java.util.Objects; 
+>
 > public enum Category {
 >    
 >    // ...
@@ -263,20 +264,18 @@ public enum Category {
 >    public List<Category> getLeafCategories() {
 >        return Arrays.stream(Category.values())
 >                .filter(category -> category.isLeafCategoryOf(this))
->                .collect(Collectors.toUnmodifiableList());
+>                .collect(Collectors.toList());
 >    }
 >
 >    private boolean isLeafCategoryOf(Category category) {
->        return (this.isLeafCategory() && category.contains(this))? true : false;
+>        return this.isLeafCategory() && category.contains(this);
 >    }
 >
 >    private boolean contains(Category category) {
 >        if(this.equals(category)) return true;
->        if(category == ROOT) return false;
 >
->        Category parent = category.parentCategory.get();
+>        return Objects.nonNull(category.parentCategory) && this.contains(category.parentCategory);
 >
->        return this.contains(parent);
 >    }
 > }
 > ```
@@ -306,7 +305,7 @@ public enum Category {
     ROOT("카테고리", null),
         FASHION("패션의류/잡화", ROOT),
             FASHION_MEN("남성", FASHION),
-                MEN_T_SHIRT("티셔츠", FASHION_MEN),
+                MEN_T_SHIRT("티셔츠", FASHION_MEN), 
                 MEN_SWEATSHIRT_HOOD("스웻셔츠/후드", FASHION_MEN),
                 MEN_SHIRT("셔츠", FASHION_MEN),
                 MEN_SUIT("정장", FASHION_MEN),
@@ -354,16 +353,14 @@ public enum Category {
             COMPUTER("컴퓨터/게임/SW", DIGITAL);
 
     private final String title;
-    private final Optional<Category> parentCategory;
+    private final Category parentCategory;
     private final List<Category> childCategories;
 
     Category(String title, Category parentCategory) {
         this.childCategories = new ArrayList<>();
         this.title = title;
-        this.parentCategory = Optional.ofNullable(parentCategory);
-        this.parentCategory.ifPresent(
-                parent -> parent.childCategories.add(this)
-        );
+        this.parentCategory = parentCategory;
+        if(Objects.nonNull(parentCategory)) parentCategory.childCategories.add(this);
     }
 
     public String getTitle() {
@@ -371,11 +368,11 @@ public enum Category {
     }
 
     public Optional<Category> getParentCategory() {
-        return parentCategory;
+        return Optional.ofNullable(parentCategory);
     }
 
     public List<Category> getChildCategories() {
-        return Collections.unmodifiableList(ChildCategories);
+        return Collections.unmodifiableList(childCategories);
     }
 
     public boolean isLeafCategory() {
@@ -385,20 +382,19 @@ public enum Category {
     public List<Category> getLeafCategories() {
         return Arrays.stream(Category.values())
                 .filter(category -> category.isLeafCategoryOf(this))
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toList());
     }
 
     private boolean isLeafCategoryOf(Category category) {
-        return (this.isLeafCategory() && category.contains(this))? true : false;
+        return this.isLeafCategory() && category.contains(this);
     }
 
     private boolean contains(Category category) {
         if(this.equals(category)) return true;
-        if(category == ROOT) return false;
 
-        Category parent = category.parentCategory.get();
+        return Objects.nonNull(category.parentCategory) && this.contains(category.parentCategory);
 
-        return this.contains(parent);
     }
+
 }
 ```
