@@ -5,12 +5,14 @@
 ## 0. 소개
 
 프로젝트를 하면서 인증 처리를 위해 스프링 시큐리티를 사용했었다.
-서블릿 애플리케이션 스프링 시큐리티는 다양한 인증방식을 지원한다.
+스프링 시큐리티는 다양한 인증방식을 지원한다.
 인증처리는 AuthenticationManager 구현체인 ProviderManager에서 모든 인증처리를 담당한다.
 어떻게 이것이 가능한지 공부했던 내용과 이를 응용해서 만들어본 다양한 필드를 가지는 결제요청을
 가상으로 처리하는 모듈을 만들어본 내용입니다.
 
-## 1. 스프링 시큐리티 인증처리
+참고 : 서블릿 애플리케이션(SpringMvc) 기준입니다.
+
+## 1. 스프링 시큐리티 인증처리 요약
 
 ### 1.1. Authentication
 
@@ -48,8 +50,8 @@ public interface AuthenticationManager {
 
 ### 1.3. ProviderManager
 
-Authentication의 구현체 SpringBoot 프로젝트에서는 자동으로 빈으로 등록된다.
-필드값중에 List\<AuthenticationProvider\>의 Element는 각각 시큐리티의 다양한 인증처리를 제공한다.
+AuthenticationManager의 구현체 SpringBoot 프로젝트에서는 자동으로 빈으로 등록된다.
+필드값중에 List\<AuthenticationProvider\>의 provider는 각각 시큐리티의 다양한 인증처리를 제공한다.
 리스트를 순회하면서 인증요청을 지원하는 provider로 인증처리한다.
 
 ```java
@@ -91,7 +93,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 ```
 
 ### 1.4. AuthenticationProvider
-
+ProviderManager로부터 인증처리를 위임받는다.
 ```java
 public interface AuthenticationProvider {
 
@@ -119,7 +121,7 @@ public class PaymentManager {
         this.providers = new ArrayList<>();
     }
 
-    // provider 리스트를 순회하면서 지원하는 결제방식이면 결제처리를 한다.
+    // provider 리스트를 순회하면서 지원하는 결제방식일때 결제처리를 한다.
     public void pay(Object paymentRequest) {
         for (PaymentProvider provider : providers) {
             if (provider.supports(paymentRequest.getClass())) {
@@ -138,7 +140,7 @@ public class PaymentManager {
 ```
 
 ### 2.2. PaymentProvider
-
+PaymentManager로 부터 결제처리를 위임받는다.
 ```java
 public interface PaymentProvider {
     // 결제처리
@@ -150,8 +152,8 @@ public interface PaymentProvider {
 
 ```
 
-### 2.3. KookminCardPaymentProvider (PaymentProvider 구현체 중 하나)
-
+### 2.3. KookminCardPaymentProvider
+PaymentManager의 구현체의 예시
 ```java
 
 @Slf4j
@@ -220,5 +222,6 @@ public class Main {
 }
 ```
 
+### 2.5. 
 [전체 코드](https://github.com/eatnuh/devthink/tree/main/src/main/java/com/eatnuh/payment)
 
