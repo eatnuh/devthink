@@ -222,6 +222,12 @@ public class Main {
 }
 ```
 
-### 2.5. 
+### 2.5. 생각정리
+
+java는 타입에 의한 런타임 에러를 최소화 하기 위해 발전해왔다고 생각한다. (JDK 1.5 제네릭 지원 등)
+위의 방식은 다양한 결제요청을 받을 수 있지만 타입 안정성이 낮아진다고 생각한다. (PaymentManager의 pay메서드 파라메터 타입을 Object로 사용)
+실제로 스프링 시큐리티를 쓰면서 authentication을 형변환해서 사용하는 코드들을 다수 찾아볼수 있었다.
+
+
 [전체 코드](https://github.com/eatnuh/devthink/tree/main/src/main/java/com/eatnuh/payment)
 
