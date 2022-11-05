@@ -6,4 +6,3 @@
 
 ### 1. [Enum으로 계층형 카테고리 구현 (2022.10.28)](https://github.com/eatnuh/devthink/tree/main/src/main/resources/category)
 ### 2. [스프링 시큐리티 인증 방식을 활용한 가상 결제 처리 모듈 (2022.11.05)](https://github.com/eatnuh/devthink/tree/main/src/main/resources/payment)
-
