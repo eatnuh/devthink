@@ -4,5 +4,6 @@
 > 잘못된 정보나 널리 알려진 Best Practice와 맞지 않을 수 있습니다. 
 
 
-### 1. [Enum으로 계층형 카테고리 구현 (2022.10.28)](https://github.com/eatnuh/devthink/tree/main/src/main/resources/category)
-### 2. [스프링 시큐리티 인증 방식을 활용한 가상 결제 처리 모듈 (2022.11.05)](https://github.com/eatnuh/devthink/tree/main/src/main/resources/payment)
+### 1. [Enum으로 계층형 카테고리 구현 (2022.10.28)](https://github.com/eatnuh/devthink/tree/main/src/main/resources/1.category)
+### 2. [스프링 시큐리티 인증 방식을 활용한 가상 결제 처리 모듈 (2022.11.05)](https://github.com/eatnuh/devthink/tree/main/src/main/resources/2.payment)
+### 3. [메서드 작명규칙](https://github.com/eatnuh/devthink/tree/main/src/main/resources/3.methodnaming)
