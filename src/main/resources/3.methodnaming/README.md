@@ -42,7 +42,7 @@ import java.util.HashMap;
 public class Foo {
     private HashMap<String, String> hashMap;
     
-    public String getValue(String key) {
+    public String get(String key) {
         return hashMap.get(key);
     }
     
@@ -56,7 +56,7 @@ public interface Foo {
 ```
 
 ## 3.find
-> 1. 이미 생선된 인스턴스 반환
+> 1. 이미 생성된 인스턴스 반환
 > 2. 리턴할 인스턴스 접근 시간이 상수 시간이 아님
 > 3. 인스턴스 접근시간을 모를 경우 : 메서드 파라메터가 있음
 
