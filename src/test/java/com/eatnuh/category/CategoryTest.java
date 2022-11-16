@@ -88,4 +88,9 @@ class CategoryTest {
 
         assertFalse(leafCategories.contains(Category.INSTANT));
     }
+
+    @Test
+    void print() {
+        System.out.println(Category.FOOD.getParentCategory());
+    }
 }

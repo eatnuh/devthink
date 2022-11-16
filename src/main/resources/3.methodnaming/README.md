@@ -1,4 +1,4 @@
-# 메서드 작명 규칙 : create, get, find
+# 내가쓰는 메서드 작명 규칙 : create, get, find
 
 -----
 

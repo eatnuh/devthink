@@ -351,9 +351,13 @@ public enum Category {
                 TV("TV", VIDEO),
                 PROJECTOR("프로젝터/스크린", VIDEO),
             COMPUTER("컴퓨터/게임/SW", DIGITAL);
-
+    
+    // 카테고리 이름
     private final String title;
+    // 부모 카테고리
     private final Category parentCategory;
+    
+    // 자식카테고리
     private final List<Category> childCategories;
 
     Category(String title, Category parentCategory) {
@@ -366,25 +370,29 @@ public enum Category {
     public String getTitle() {
         return title;
     }
-
+    
+    // 부모카테고리 Getter
     public Optional<Category> getParentCategory() {
         return Optional.ofNullable(parentCategory);
     }
 
+    // 자식카테고리 Getter
     public List<Category> getChildCategories() {
         return Collections.unmodifiableList(childCategories);
     }
 
+    // 마지막 카테고리인지 반환
     public boolean isLeafCategory() {
         return childCategories.isEmpty();
     }
 
+    // 마지막 카테고리들 반환
     public List<Category> getLeafCategories() {
         return Arrays.stream(Category.values())
                 .filter(category -> category.isLeafCategoryOf(this))
                 .collect(Collectors.toList());
     }
-
+    
     private boolean isLeafCategoryOf(Category category) {
         return this.isLeafCategory() && category.contains(this);
     }
@@ -393,7 +401,6 @@ public enum Category {
         if(this.equals(category)) return true;
 
         return Objects.nonNull(category.parentCategory) && this.contains(category.parentCategory);
-
     }
 
 }
